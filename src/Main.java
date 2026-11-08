@@ -1,14 +1,13 @@
-import java.nio.file.Paths;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
         if (args.length < 2) {
-            Utils.logError("Not enough arguments.");
+            Utils.logError("Usage: <strategy> [args]");
             System.exit(1);
         }
 
-        int strategy = Parser.parseIntParameter(args[1], "strategy");
+        int strategy = Parser.parseIntParameter(args[0], "strategy");
         switch (strategy) {
             case 1:
                 runStrategy1(args);
@@ -30,27 +29,23 @@ public class Main {
      * @param args The list of arguments to run the strategy.
      */
     private static void runStrategy1(String[] args) {
-        FileReader fr = new FileReader(args[0]);
-
         if (args.length < 8) {
             Utils.logError("Strategy 1 requires 8 arguments.");
             System.exit(1);
         }
 
+        String filename = args[1];
         int width = Parser.parseIntParameter(args[2], "width");
         int height = Parser.parseIntParameter(args[3], "height");
-        int nbLeafsToDivide = Parser.parseIntParameter(args[4], "nbLeafsToDivide");
+        int nbLeavesToDivide = Parser.parseIntParameter(args[4], "nbLeafsToDivide");
         int minCutDimension = Parser.parseIntParameter(args[5], "minCutDimension");
         int lineWidth = Parser.parseIntParameter(args[6], "lineWidth");
         Variant variant = Parser.parseVariant(args[7]);
 
-        List<LineData> lines = fr.readFile();
-        Tree2D tree = new Tree2D(width, height, nbLeafsToDivide, minCutDimension, variant, lines);
+        List<LineData> lines = new FileReader(filename).readFile();
+        Tree2D tree = new Tree2D(width, height, nbLeavesToDivide, minCutDimension, variant, lines);
 
-        Image image = tree.toImage(lineWidth);
-
-        String outputName = getFileNameWithoutExtension(args[0]);
-        FileModule.saveToPNG(outputName, image);
+        FileModule.saveToPNG(filename.replace(".txt", ""), tree.toImage(lineWidth));
     }
 
     /**
@@ -59,19 +54,31 @@ public class Main {
      * @param args The list of arguments to run the strategy.
      */
     private static void runStrategy2(String[] args) {
-        Utils.logError("Strategy 2 is not implemented yet.");
-    }
+        if (args.length < 7) {
+            Utils.logError("Strategy 2 requires 7 arguments.");
+            System.exit(1);
+        }
 
-    /**
-     * Determines the name of the input file for the output image.
-     *
-     * @param path The path of the file to process.
-     * @return The cleaned file name.
-     */
-    private static String getFileNameWithoutExtension(String path) {
-        String fileName = Paths.get(path).getFileName().toString();
-        int dotIndex = fileName.lastIndexOf('.');
+        int fileLength = Parser.parseIntParameter(args[1], "file length");
+        int width = Parser.parseIntParameter(args[2], "width");
+        int height = Parser.parseIntParameter(args[3], "height");
+        int nbLeavesToDivide = Parser.parseIntParameter(args[4], "nbLeafsToDivide");
+        int minCutDimension = Parser.parseIntParameter(args[5], "minCutDimension");
+        int lineWidth = Parser.parseIntParameter(args[6], "lineWidth");
+        Variant variant = Parser.parseVariant(args[7]);
 
-        return (dotIndex == -1) ? fileName : fileName.substring(0, dotIndex);
+        List<LineData> lines = new FileGenerator(fileLength).generateFile();
+        String filename = String.join("-",
+                "file",
+                String.valueOf(args[0]),
+                String.valueOf(width),
+                String.valueOf(height),
+                String.valueOf(nbLeavesToDivide),
+                String.valueOf(minCutDimension),
+                String.valueOf(lineWidth),
+                String.valueOf(variant));
+        Tree2D tree = new Tree2D(width, height, nbLeavesToDivide, minCutDimension, variant, lines);
+
+        FileModule.saveToPNG(filename, tree.toImage(lineWidth));
     }
 }

@@ -19,6 +19,14 @@ public class LineData {
         this.d = Parser.parseColor(content[4]);
     }
 
+    public LineData(int k, double p, double q, Color g, Color d) {
+        this.k = k;
+        this.p = p;
+        this.q = q;
+        this.g = g;
+        this.d = d;
+    }
+
     @Override
     public String toString() {
         return String.join(
