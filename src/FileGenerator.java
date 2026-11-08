@@ -27,7 +27,6 @@ public class FileGenerator {
      */
     public List<LineData> generateFile() {
         List<LineData> content = new ArrayList<>();
-
         for (int k = 1; k <= this.fileLength; k++)
             content.add(this.generateLineData(k));
         return content;
@@ -41,22 +40,10 @@ public class FileGenerator {
      */
     private LineData generateLineData(int k) {
         return new LineData(k,
-                this.generateDouble(0.0, 1.0),
-                this.generateDouble(0.0, 1.0),
+                Utils.generateDouble(RANDOM, 0.0, 1.0),
+                Utils.generateDouble(RANDOM, 0.0, 1.0),
                 this.pickAColor(),
                 this.pickAColor());
-    }
-
-    /**
-     * Generate a double value.
-     *
-     * @param min The min double value (included).
-     * @param max The max double value (excluded).
-     * @return The generated double value, rounded to 2 decimal places.
-     */
-    private double generateDouble(double min, double max) {
-        double value = min + RANDOM.nextDouble() * (max - min);
-        return Math.round(value * 100.0) / 100.0;
     }
 
     /**
@@ -65,17 +52,6 @@ public class FileGenerator {
      * @return The picked color.
      */
     private Color pickAColor() {
-        return COLORS.get(this.generateInt(0, COLORS.size() - 1));
-    }
-
-    /**
-     * Generate an int value.
-     *
-     * @param min The min int value (included).
-     * @param max The max int value (included).
-     * @return The generated int value.
-     */
-    private int generateInt(int min, int max) {
-        return RANDOM.nextInt(max - min + 1) + min;
+        return COLORS.get(Utils.generateInt(RANDOM, 0, COLORS.size() - 1));
     }
 }

@@ -1,3 +1,5 @@
+import java.util.Random;
+
 /**
  * All Utils functions are in {@code O(1)} time.
  * As there is only comparisons and calculations.
@@ -29,6 +31,38 @@ public class Utils {
     }
 
     /**
+     * Generate a double value.
+     *
+     * @param min The min double value (included).
+     * @param max The max double value (excluded).
+     * @return The generated double value, rounded to 2 decimal places.
+     */
+    public static double generateDouble(Random RANDOM, double min, double max) {
+        return min + RANDOM.nextDouble() * (max - min);
+    }
+
+    /**
+     * Generate an int value.
+     *
+     * @param min The min int value (included).
+     * @param max The max int value (included).
+     * @return The generated int value.
+     */
+    public static int generateInt(Random RANDOM, int min, int max) {
+        return RANDOM.nextInt(max - min + 1) + min;
+    }
+
+    /**
+     * Rounds an integer to the nearest ten.
+     *
+     * @param value The value to round.
+     * @return The rounded value.
+     */
+    public static int roundToNearestTen(int value) {
+        return Math.round(value / 10.0f) * 10;
+    }
+
+    /**
      * Determines the point with the highest left coordinate following the
      * lexicographic order.
      * Reminder: (a, b) < (a', b') iff either a < a' or a = 'a and b < b'.
@@ -51,7 +85,8 @@ public class Utils {
      *
      * @param left  The left Tree2D.
      * @param right The right Tree2D.
-     * @return The tree with the highest weight or {@code null} if their weight values are equals.
+     * @return The tree with the highest weight or {@code null} if their weight
+     *         values are equals.
      */
     public static Tree2D maxWeightValue(Tree2D left, Tree2D right) {
         double rightWeight = getWeight(right.width(), right.height());
