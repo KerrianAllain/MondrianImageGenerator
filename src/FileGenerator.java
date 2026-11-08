@@ -40,8 +40,8 @@ public class FileGenerator {
      */
     private LineData generateLineData(int k) {
         return new LineData(k,
-                Utils.generateDouble(RANDOM, 0.0, 1.0),
-                Utils.generateDouble(RANDOM, 0.0, 1.0),
+                Utils.generateDouble(RANDOM, 0.2, 0.8),
+                Utils.generateDouble(RANDOM, 0.2, 0.8),
                 this.pickAColor(),
                 this.pickAColor());
     }
