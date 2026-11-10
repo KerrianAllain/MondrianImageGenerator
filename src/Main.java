@@ -8,7 +8,7 @@ public class Main {
         }
 
         int strategy = Parser.parseIntParameter(args[0], "strategy");
-        if (strategy < 1 || strategy > 2) {
+        if (strategy < 1 || strategy > 3) {
             Utils.logError("Invalid strategy.");
             return;
         }
@@ -16,8 +16,11 @@ public class Main {
         if (strategy == 1) {
             runStrategy1(args);
             return;
+        } else if (strategy == 2) {
+            runStrategy2(args);
+            return;
         }
-        runStrategy2(args);
+        runStrategy3(args);
     }
 
     /**
@@ -40,7 +43,7 @@ public class Main {
     }
 
     /**
-     * Run our own strategy.
+     * Run our first own strategy.
      *
      * @param args The list of arguments to run the strategy.
      */
@@ -52,9 +55,28 @@ public class Main {
 
         StrategySpecs specs = new StrategySpecs(args);
         int fileLength = specs.fileLength(args.length == 1 ? null : args[1]);
-        List<LineData> lines = new FileGenerator(fileLength).generateFile();
+        List<LineData> lines = new FileGenerator(fileLength).generateFile(2);
 
         Tree2D tree = new Tree2D(specs, lines);
+        FileModule.saveToPNG(specs.determineFromSpecs(2), tree.toImage(specs.lineWidth));
+    }
+
+    /**
+     * Run our second own strategy.
+     *
+     * @param args The list of arguments to run the strategy.
+     */
+    private static void runStrategy3(String[] args) {
+        if (args.length != 1 && args.length < 8) {
+            Utils.logError("Strategy 3 requires either none or 8 arguments.");
+            System.exit(1);
+        }
+
+        StrategySpecs specs = new StrategySpecs(args);
+        int fileLength = specs.fileLength(args.length == 1 ? null : args[1]);
+        List<LineData> lines = new FileGenerator(fileLength).generateFile(4);
+
+        RQuadtree tree = new RQuadtree(specs, lines);
         FileModule.saveToPNG(specs.determineFromSpecs(2), tree.toImage(specs.lineWidth));
     }
 }

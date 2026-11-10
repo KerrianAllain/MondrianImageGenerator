@@ -7,8 +7,8 @@ public class Tree2D {
     private final Color color;
 
     private Division division;
-    private Tree2D right;
-    private Tree2D left;
+    private Tree2D east;
+    private Tree2D west;
 
     public Tree2D(StrategySpecs specs, List<LineData> linesData) {
         this.bottomRight = new Point(specs.width, specs.height);
@@ -53,8 +53,8 @@ public class Tree2D {
             Axis axis = Utils.determineAxis(v, workingLeaf.width(), workingLeaf.height());
             workingLeaf.division = new Division(axis, workingLeaf.topLeft, line, workingLeaf);
 
-            workingLeaf.left = workingLeaf.buildLeaf(line.g, ChildType.LEFT);
-            workingLeaf.right = workingLeaf.buildLeaf(line.d, ChildType.RIGHT);
+            workingLeaf.west = workingLeaf.buildLeaf(line.nw, ChildType.NW);
+            workingLeaf.east = workingLeaf.buildLeaf(line.ne, ChildType.NE);
 
             divisions++;
         }
@@ -73,18 +73,18 @@ public class Tree2D {
      */
     private Tree2D buildLeaf(Color childColor, ChildType childType) {
         Point splitPoint = this.division.getSplitPoint(childType, this.topLeft, this.bottomRight);
-        Point nextBottomRight = (childType == ChildType.RIGHT) ? this.bottomRight : splitPoint;
-        Point nextTopLeft = (childType == ChildType.LEFT) ? this.topLeft : splitPoint;
+        Point nextBottomRight = (childType == ChildType.NE) ? this.bottomRight : splitPoint;
+        Point nextTopLeft = (childType == ChildType.NW) ? this.topLeft : splitPoint;
         Color nextColor = (childColor == null) ? this.color : childColor;
 
         return new Tree2D(nextTopLeft, nextBottomRight, nextColor);
     }
 
     /**
-     * @return {@code true} if the tree has no child, {@code false} otherwise.
+     * @return {@code true} if the tree has no west child, {@code false} otherwise.
      */
     private boolean isLeaf() {
-        return this.left == null && this.right == null;
+        return this.west == null;
     }
 
     /**
@@ -103,8 +103,8 @@ public class Tree2D {
             return isValid ? this : null;
         }
 
-        Tree2D leftMaximum = this.left.leafOfMaximumWeight(minCutDimension);
-        Tree2D rightMaximum = this.right.leafOfMaximumWeight(minCutDimension);
+        Tree2D leftMaximum = this.west.leafOfMaximumWeight(minCutDimension);
+        Tree2D rightMaximum = this.east.leafOfMaximumWeight(minCutDimension);
 
         if (leftMaximum == null)
             return rightMaximum;
@@ -151,8 +151,8 @@ public class Tree2D {
             return image;
         }
 
-        image = this.left.colorImage(image, lineWidth);
-        image = this.right.colorImage(image, lineWidth);
+        image = this.west.colorImage(image, lineWidth);
+        image = this.east.colorImage(image, lineWidth);
 
         if (lineWidth > 0)
             this.drawSeparationLine(image, lineWidth);
@@ -208,14 +208,14 @@ public class Tree2D {
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        if (this.left != null)
-            sb.append("( ").append(this.left).append(" )");
+        if (this.west != null)
+            sb.append("( ").append(this.west).append(" )");
 
         Object content = (division != null) ? this.division : this.formatColor();
         sb.append("( ").append(content).append(" )");
 
-        if (this.right != null)
-            sb.append("( ").append(this.right).append(" )");
+        if (this.east != null)
+            sb.append("( ").append(this.east).append(" )");
 
         return sb.toString();
     }

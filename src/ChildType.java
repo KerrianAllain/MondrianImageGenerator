@@ -1,3 +1,3 @@
 public enum ChildType {
-    LEFT, RIGHT
+    NW, NE, SE, SW
 }

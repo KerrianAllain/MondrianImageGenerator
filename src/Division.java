@@ -35,7 +35,7 @@ public class Division {
      * @return The calculated split Point.
      */
     public Point getSplitPoint(ChildType childType, Point topLeft, Point bottomRight) {
-        Point target = (childType == ChildType.LEFT) ? bottomRight : topLeft;
+        Point target = (childType == ChildType.NW) ? bottomRight : topLeft;
         return this.axis.withValue(target, this.value);
     }
 

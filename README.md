@@ -20,8 +20,13 @@ L'exécution de la stratégie **proposée** s'effectue de la manière suivante :
 java -classpath AllainAllain/bin Main 1 [fichier.txt] [largeur] [hauteur] [nbFeuillesADiviser] [minDimensionCoupe] [largeurLigne] [variante]
 ```
 
-L'exécution de la stratégie **personnalisée** s'effectue de la manière suivante :
+L'exécution de la première stratégie **personnalisée** s'effectue de la manière suivante :
 
 ``` bash
-java -classpath AllainAllain/bin Main 2 [fileLength] [largeur] [hauteur] [nbFeuillesADiviser] [minDimensionCoupe] [largeurLigne] [variante]
+java -classpath AllainAllain/bin Main 2 ([fileLength] [largeur] [hauteur] [nbFeuillesADiviser] [minDimensionCoupe] [largeurLigne] [variante])
+```
+
+L'exécution de la seconde stratégie **personnalisée** s'effectue de la manière suivante :
+``` bash
+java -classpath AllainAllain/bin Main 3 ([fileLength] [largeur] [hauteur] [nbFeuillesADiviser] [minDimensionCoupe] [largeurLigne] [variante])
 ```
