@@ -99,6 +99,44 @@ public class Utils {
     }
 
     /**
+     * Determines the RQuadtree having the maximum weight value between two RQuadtree.
+     *
+     * @param NW  The left RQuadtree.
+     * @param NE The right RQuadtree.
+     * @param SE  The left RQuadtree.
+     * @param SW The right RQuadtree.
+     * @return The tree with the highest weight or {@code null} if their weight
+     *         values are equals.
+     */
+    public static RQuadtree maxWeightValue(RQuadtree NW, RQuadtree NE, RQuadtree SE, RQuadtree SW) {
+        double NWWeight = getWeight(NW.width(), NW.height());
+        double NEWeight = getWeight(NE.width(), NE.height());
+        double SEWeight = getWeight(SE.width(), SE.height());
+        double SWWeight = getWeight(SW.width(), SW.height());
+
+        if (Double.compare(NWWeight, NEWeight) == 0
+                && Double.compare(NWWeight, SEWeight) == 0
+                && Double.compare(NWWeight, SWWeight) == 0)
+            return null;
+
+        RQuadtree maxTree = NW;
+        double maxWeight = NWWeight;
+
+        if (NEWeight > maxWeight) {
+            maxTree = NE;
+            maxWeight = NEWeight;
+        }
+        if (SEWeight > maxWeight) {
+            maxTree = SE;
+            maxWeight = SEWeight;
+        }
+        if (SWWeight > maxWeight)
+            maxTree = SW;
+
+        return maxTree;
+    }
+
+    /**
      * Determines the weight of the leaf.
      *
      * @param w The width of the leaf.

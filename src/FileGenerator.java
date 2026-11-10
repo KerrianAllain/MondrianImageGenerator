@@ -10,7 +10,6 @@ public class FileGenerator {
     private static final List<Color> COLORS = Collections.unmodifiableList(
             Arrays.asList(
                     null,
-                    Color.BLACK,
                     Color.BLUE,
                     Color.CYAN,
                     Color.DARK_GRAY,

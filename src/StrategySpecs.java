@@ -34,7 +34,7 @@ public class StrategySpecs {
         this.height = Utils.roundToNearestTen(Utils.generateInt(RANDOM, 50, 200));
         this.nbLeavesToDivide = Utils.generateInt(RANDOM, 12, 60);
         this.minCutDimension = Utils.generateInt(RANDOM, 2, 10);
-        this.lineWidth = Utils.generateInt(RANDOM, 1, minCutDimension - 1);
+        this.lineWidth = Utils.generateInt(RANDOM, 1, minCutDimension / 2);
         this.variant = (Utils.generateInt(RANDOM, 0, 1) == 0) ? Variant.A : Variant.B;
     }
 
