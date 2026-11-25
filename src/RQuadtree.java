@@ -2,7 +2,7 @@ import java.awt.Color;
 import java.util.List;
 import java.util.Objects;
 
-public class RQuadtree {
+public class RQuadtree implements Tree {
     private final Point bottomRight;
     private final Point topLeft;
     private final Color color;
@@ -13,10 +13,13 @@ public class RQuadtree {
     private RQuadtree SE;
     private RQuadtree SW;
 
+    private BinaryHeap<RQuadtree> leafHeap;
+
     public RQuadtree(StrategySpecs specs, List<LineData> linesData) {
         this.bottomRight = new Point(specs.width, specs.height);
         this.topLeft = new Point(0, 0);
         this.color = Color.WHITE;
+        this.leafHeap = new BinaryHeap<>(this);
 
         this.build(specs.nbLeavesToDivide, specs.minCutDimension, linesData);
     }
@@ -49,7 +52,7 @@ public class RQuadtree {
             if (divisions == nbLeavesToDivide)
                 break;
 
-            RQuadtree workingLeaf = this.leafOfMaximumWeight(minCutDimension);
+            RQuadtree workingLeaf = this.leafHeap.pop();
             if (workingLeaf.width() < minCutDimension || workingLeaf.height() < minCutDimension)
                 break;
 
@@ -59,6 +62,11 @@ public class RQuadtree {
             workingLeaf.NE = workingLeaf.buildLeaf(line.ne, ChildType.NE);
             workingLeaf.SE = workingLeaf.buildLeaf(line.se, ChildType.SE);
             workingLeaf.SW = workingLeaf.buildLeaf(line.sw, ChildType.SW);
+
+            this.leafHeap.push(NW);
+            this.leafHeap.push(NE);
+            this.leafHeap.push(SE);
+            this.leafHeap.push(SW);
 
             divisions++;
         }
@@ -172,11 +180,18 @@ public class RQuadtree {
         image.setRectangle(yStart.x, yEnd.x, yStart.y, yEnd.y, Color.BLACK);
     }
 
+    @Override
     public int width() {
         return this.bottomRight.x - this.topLeft.x;
     }
 
+    @Override
     public int height() {
         return this.bottomRight.y - this.topLeft.y;
+    }
+
+    @Override
+    public Point topLeftPoint() {
+        return this.topLeft;
     }
 }

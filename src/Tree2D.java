@@ -2,7 +2,7 @@ import java.awt.Color;
 import java.util.List;
 import java.util.Objects;
 
-public class Tree2D {
+public class Tree2D implements Tree {
     private final Point bottomRight;
     private final Point topLeft;
     private final Color color;
@@ -11,10 +11,13 @@ public class Tree2D {
     private Tree2D east;
     private Tree2D west;
 
+    private BinaryHeap<Tree2D> leafHeap;
+
     public Tree2D(StrategySpecs specs, List<LineData> linesData) {
         this.bottomRight = new Point(specs.width, specs.height);
         this.topLeft = new Point(0, 0);
         this.color = Color.WHITE;
+        this.leafHeap = new BinaryHeap<>(this);
 
         this.build(specs.nbLeavesToDivide, specs.minCutDimension, specs.variant, linesData);
     }
@@ -47,7 +50,7 @@ public class Tree2D {
             if (divisions == nbLeavesToDivide)
                 break;
 
-            Tree2D workingLeaf = this.leafOfMaximumWeight(minCutDimension);
+            Tree2D workingLeaf = this.leafHeap.pop();
             if (Objects.isNull(workingLeaf) || workingLeaf.width() < minCutDimension
                     || workingLeaf.height() < minCutDimension)
                 break;
@@ -57,6 +60,9 @@ public class Tree2D {
 
             workingLeaf.west = workingLeaf.buildLeaf(line.nw, ChildType.NW);
             workingLeaf.east = workingLeaf.buildLeaf(line.ne, ChildType.NE);
+
+            this.leafHeap.push(workingLeaf.west);
+            this.leafHeap.push(workingLeaf.east);
 
             divisions++;
         }
@@ -197,11 +203,18 @@ public class Tree2D {
         image.setRectangle(start.x, end.x, start.y, end.y, Color.BLACK);
     }
 
+    @Override
     public int width() {
         return this.bottomRight.x - this.topLeft.x;
     }
 
+    @Override
     public int height() {
         return this.bottomRight.y - this.topLeft.y;
+    }
+
+    @Override
+    public Point topLeftPoint() {
+        return this.topLeft;
     }
 }

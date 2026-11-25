@@ -80,14 +80,14 @@ public class Utils {
     }
 
     /**
-     * Determine the Tree2D having the maximum weight value between two Tree2D.
+     * Determine the T having the maximum weight value between two T.
      *
-     * @param left  The left Tree2D.
-     * @param right The right Tree2D.
+     * @param left  The left T.
+     * @param right The right T.
      * @return The tree with the highest weight or {@code null} if their weight
      *         values are equals.
      */
-    public static Tree2D maxWeightValue(Tree2D left, Tree2D right) {
+    public static <T extends Tree> T maxWeightValue(T left, T right) {
         double rightWeight = getWeight(right.width(), right.height());
         double leftWeight = getWeight(left.width(), left.height());
 
@@ -98,12 +98,26 @@ public class Utils {
     }
 
     /**
-     * Compute the weight of a given tree.
+     * Determines the T having the maximum weight value between two Tree2D.
+     *
+     * @param left  The left T.
+     * @param right The right T.
+     * @return -1 if left has a smaller weight than right
+     */
+    public static <T extends Tree> int compare(T left, T right) {
+        double rightWeight = getWeight(right.width(), right.height());
+        double leftWeight = getWeight(left.width(), left.height());
+
+        return Double.compare(leftWeight, rightWeight);
+    }
+
+    /**
+     * Determines the RQuadtree having the maximum weight value between two RQuadtree.
      *
      * @param tree The tree to compute the weight.
      * @return The tree's weight.
      */
-    private static double getWeight(RQuadtree tree) {
+    public static<T extends Tree> double getWeight(T tree) {
         return getWeight(tree.width(), tree.height());
     }
 
