@@ -7,7 +7,7 @@ public class FileModule {
     private static final Path TARGET_DIR = Paths.get("AllainAllain", "target");
 
     /**
-     * Saves an ImagePNG to a PNG file in a subfolder inside the TARGET directory.
+     * Save an ImagePNG to a PNG file in a subfolder inside the TARGET directory.
      *
      * <p>
      * <b>Complexity:</b> depends on {@link Image#save(String)}.
@@ -32,7 +32,7 @@ public class FileModule {
     }
 
     /**
-     * Creates the required target directory if it does not exist.
+     * Create the required target directory if it does not exist.
      *
      * <p>
      * <b>Complexity: O(1)</b>.

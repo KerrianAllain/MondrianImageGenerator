@@ -37,6 +37,7 @@ public class FileGenerator {
      * Generate the content of an input file.
      *
      * @param dimension The dimension of the LineData (either 2 or 4).
+     *                  2 means we want to build a Tree2D, 4 means a RQuadtree.
      * @return A list of LineData to build an Image from.
      */
     public List<LineData> generateFile(int dimension) {
@@ -51,6 +52,7 @@ public class FileGenerator {
      *
      * @param k         The current line index being generated.
      * @param dimension The dimension of the LineData (either 2 or 4).
+     *                  2 means we want to build a Tree2D, 4 means a RQuadtree.
      * @return The generated LineData from scratch.
      */
     private LineData generateLineData(int k, int dimension) {

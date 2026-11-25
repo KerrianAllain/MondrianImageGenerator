@@ -31,15 +31,4 @@ public class LineData {
         this.se = se;
         this.sw = sw;
     }
-
-    @Override
-    public String toString() {
-        return String.join(
-                SEPARATOR,
-                String.valueOf(k),
-                String.valueOf(p),
-                String.valueOf(q),
-                String.valueOf(nw),
-                String.valueOf(ne));
-    }
 }

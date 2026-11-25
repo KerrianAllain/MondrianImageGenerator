@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.util.List;
+import java.util.Objects;
 
 public class RQuadtree {
     private final Point bottomRight;
@@ -75,19 +76,22 @@ public class RQuadtree {
      * @return A new RQuadtree instance representing the split child leaf.
      */
     private RQuadtree buildLeaf(Color childColor, ChildType childType) {
-        Color nextColor = (childColor == null) ? this.color : childColor;
+        Color nextColor = (Objects.isNull(childColor)) ? this.color : childColor;
         switch (childType) {
             case NW:
-                return new RQuadtree(this.topLeft, new Point(this.division.XValue, this.division.YValue), nextColor);
+                return new RQuadtree(this.topLeft, new Point(this.division.xValue, this.division.yValue), nextColor);
 
             case NE:
-                return new RQuadtree(new Point(this.division.XValue, this.topLeft.y), new Point(this.bottomRight.x, this.division.YValue), nextColor);
+                return new RQuadtree(new Point(this.division.xValue, this.topLeft.y),
+                        new Point(this.bottomRight.x, this.division.yValue), nextColor);
 
             case SE:
-                return new RQuadtree(new Point(this.division.XValue, this.division.YValue), this.bottomRight, nextColor);
+                return new RQuadtree(new Point(this.division.xValue, this.division.yValue), this.bottomRight,
+                        nextColor);
 
             case SW:
-                return new RQuadtree(new Point(this.topLeft.x, this.division.YValue), new Point(this.division.XValue, this.bottomRight.y), nextColor);
+                return new RQuadtree(new Point(this.topLeft.x, this.division.yValue),
+                        new Point(this.division.xValue, this.bottomRight.y), nextColor);
             default:
                 throw new AssertionError();
         }
@@ -97,38 +101,11 @@ public class RQuadtree {
      * @return {@code true} if the tree has no child, {@code false} otherwise.
      */
     private boolean isLeaf() {
-        return this.NW == null;
+        return Objects.isNull(this.NW);
     }
 
     /**
-     * Determines the leaf that has the maximum weight and respects minCutDimension.
-     *
-     * <p>
-     * <b>Complexity: O(n)</b>, where {@code n} is the number of nodes.
-     * </p>
-     *
-     * @param minCutDimension Minimum allowed width and height for a cut.
-     * @return The leaf with the maximum weight, or null if no valid leaf exists.
-     */
-    private RQuadtree leafOfMaximumWeight(int minCutDimension) {
-        if (this.isLeaf()) {
-            return this;
-        }
-
-        RQuadtree NWMaximum = this.NW.leafOfMaximumWeight(minCutDimension);
-        RQuadtree NEMaximum = this.NE.leafOfMaximumWeight(minCutDimension);
-        RQuadtree SEMaximum = this.SE.leafOfMaximumWeight(minCutDimension);
-        RQuadtree SWMaximum = this.SW.leafOfMaximumWeight(minCutDimension);
-
-        RQuadtree tree = Utils.maxWeightValue(NWMaximum, NEMaximum, SEMaximum, SWMaximum);
-        if (tree != null)
-            return tree;
-
-        return NWMaximum;
-    }
-
-    /**
-     * Builds the image representation of the tree.
+     * Build the image representation of the tree.
      *
      * <p>
      * <b>Complexity: O(n)</b>, where {@code n} is the number of pixels.
@@ -143,7 +120,7 @@ public class RQuadtree {
     }
 
     /**
-     * Colors an image a rectangle at a time.
+     * Color an image a rectangle at a time.
      *
      * <p>
      * <b>Complexity: O(n)</b>, where {@code n} is the number of pixels.
@@ -171,7 +148,7 @@ public class RQuadtree {
     }
 
     /**
-     * Draws a line of separation between rectangles.
+     * Draw a line of separation between rectangles.
      *
      * <p>
      * <b>Complexity: depends on
@@ -185,14 +162,14 @@ public class RQuadtree {
         int halfWidth = lineWidth / 2;
         int restWidth = lineWidth - halfWidth;
 
-        Point XStart = new Point(this.division.XValue - halfWidth, this.topLeft.y);
-        Point XEnd = new Point(this.division.XValue + restWidth, this.bottomRight.y);
+        Point xStart = new Point(this.division.xValue - halfWidth, this.topLeft.y);
+        Point xEnd = new Point(this.division.xValue + restWidth, this.bottomRight.y);
 
-        Point YStart = new Point(this.topLeft.x, this.division.YValue - halfWidth);
-        Point YEnd = new Point(this.bottomRight.x, this.division.YValue + restWidth);
+        Point yStart = new Point(this.topLeft.x, this.division.yValue - halfWidth);
+        Point yEnd = new Point(this.bottomRight.x, this.division.yValue + restWidth);
 
-        image.setRectangle(XStart.x, XEnd.x, XStart.y, XEnd.y, Color.BLACK);
-        image.setRectangle(YStart.x, YEnd.x, YStart.y, YEnd.y, Color.BLACK);
+        image.setRectangle(xStart.x, xEnd.x, xStart.y, xEnd.y, Color.BLACK);
+        image.setRectangle(yStart.x, yEnd.x, yStart.y, yEnd.y, Color.BLACK);
     }
 
     public int width() {
@@ -201,34 +178,5 @@ public class RQuadtree {
 
     public int height() {
         return this.bottomRight.y - this.topLeft.y;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-
-        if (this.NW != null)
-            sb.append("( ").append(this.NW).append(" )");
-
-        Object content = (division != null) ? this.division : this.formatColor();
-        sb.append("( ").append(content).append(" )");
-
-        if (this.NE != null)
-            sb.append("( ").append(this.NE).append(" )");
-
-        return sb.toString();
-    }
-
-    /**
-     * Formats the leaf color to its R, G, B representation.
-     *
-     * <p>
-     * <b>Complexity: O(1)</b>.
-     * </p>
-     *
-     * @return The formatted color.
-     */
-    private String formatColor() {
-        return this.color.getRed() + ", " + this.color.getGreen() + ", " + this.color.getBlue();
     }
 }

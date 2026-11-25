@@ -1,4 +1,5 @@
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.Random;
 
 public class StrategySpecs {
@@ -63,13 +64,12 @@ public class StrategySpecs {
      * @return The parsed length.
      */
     public int fileLength(String value) {
-        if (value == null)
-            return this.nbLeavesToDivide;
-        return Parser.parseIntParameter(value, "file length");
+        return Objects.requireNonNullElse(this.nbLeavesToDivide, Parser.parseIntParameter(value, "file length"));
     }
 
     /**
      * Determine the filename from the given path.
+     * Uses Regex expression to delete the first .txt extension found.
      *
      * @param filename The path to the file content.
      * @return The cleaned filename.

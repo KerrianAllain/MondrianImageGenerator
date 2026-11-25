@@ -18,14 +18,13 @@ public class Utils {
      * @return The axis to divide on.
      */
     public static Axis determineAxis(Variant v, int width, int height) {
-        double inverseRatio = (double) height / width;
         double ratio = (double) width / height;
 
         if (v == Variant.B)
             return (ratio > 1) ? Axis.X : Axis.Y;
 
         if (v == Variant.A)
-            return (ratio > 2 || inverseRatio <= 2) ? Axis.X : Axis.Y;
+            return (ratio >= 0.5) ? Axis.X : Axis.Y;
 
         throw new IllegalArgumentException("Unsupported variant: " + v + ".");
     }
@@ -53,7 +52,7 @@ public class Utils {
     }
 
     /**
-     * Rounds an integer to the nearest ten.
+     * Round an integer to the nearest ten.
      *
      * @param value The value to round.
      * @return The rounded value.
@@ -63,7 +62,7 @@ public class Utils {
     }
 
     /**
-     * Determines the point with the highest left coordinate following the
+     * Determine the point with the highest left coordinate following the
      * lexicographic order.
      * Reminder: (a, b) < (a', b') iff either a < a' or a = 'a and b < b'.
      *
@@ -81,7 +80,7 @@ public class Utils {
     }
 
     /**
-     * Determines the Tree2D having the maximum weight value between two Tree2D.
+     * Determine the Tree2D having the maximum weight value between two Tree2D.
      *
      * @param left  The left Tree2D.
      * @param right The right Tree2D.
@@ -99,45 +98,17 @@ public class Utils {
     }
 
     /**
-     * Determines the RQuadtree having the maximum weight value between two RQuadtree.
+     * Compute the weight of a given tree.
      *
-     * @param NW  The left RQuadtree.
-     * @param NE The right RQuadtree.
-     * @param SE  The left RQuadtree.
-     * @param SW The right RQuadtree.
-     * @return The tree with the highest weight or {@code null} if their weight
-     *         values are equals.
+     * @param tree The tree to compute the weight.
+     * @return The tree's weight.
      */
-    public static RQuadtree maxWeightValue(RQuadtree NW, RQuadtree NE, RQuadtree SE, RQuadtree SW) {
-        double NWWeight = getWeight(NW.width(), NW.height());
-        double NEWeight = getWeight(NE.width(), NE.height());
-        double SEWeight = getWeight(SE.width(), SE.height());
-        double SWWeight = getWeight(SW.width(), SW.height());
-
-        if (Double.compare(NWWeight, NEWeight) == 0
-                && Double.compare(NWWeight, SEWeight) == 0
-                && Double.compare(NWWeight, SWWeight) == 0)
-            return null;
-
-        RQuadtree maxTree = NW;
-        double maxWeight = NWWeight;
-
-        if (NEWeight > maxWeight) {
-            maxTree = NE;
-            maxWeight = NEWeight;
-        }
-        if (SEWeight > maxWeight) {
-            maxTree = SE;
-            maxWeight = SEWeight;
-        }
-        if (SWWeight > maxWeight)
-            maxTree = SW;
-
-        return maxTree;
+    private static double getWeight(RQuadtree tree) {
+        return getWeight(tree.width(), tree.height());
     }
 
     /**
-     * Determines the weight of the leaf.
+     * Determine the weight of the leaf.
      *
      * @param w The width of the leaf.
      * @param h The height of the leaf.
@@ -148,7 +119,7 @@ public class Utils {
     }
 
     /**
-     * Displays a success message for a completed action.
+     * Display a success message for a completed action.
      *
      * @param action The description of the successfully completed operation.
      */
@@ -157,7 +128,7 @@ public class Utils {
     }
 
     /**
-     * Displays an error message for an action.
+     * Display an error message for an action.
      *
      * @param error The error that occurred during the operation.
      */
@@ -166,7 +137,7 @@ public class Utils {
     }
 
     /**
-     * Displays an error message from an exception.
+     * Display an error message from an exception.
      *
      * @param exception The exception to display.
      */

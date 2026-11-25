@@ -1,8 +1,9 @@
 import java.awt.Color;
+import java.util.Objects;
 
 public class Parser {
     /**
-     * Parses a Color value ("m", "r", "b", "n", "w" or "j").
+     * Parse a Color value ("m", "r", "b", "n", "w" or "j").
      *
      * <p>
      * <b>Complexity: O(n)</b>, where {@code n} is the length of the value.
@@ -13,8 +14,7 @@ public class Parser {
      */
     public static Color parseColor(String value) {
         try {
-            if (value == null)
-                throw new IllegalArgumentException("Color value cannot be null.");
+            Objects.requireNonNull(value, "Color value cannot be null.");
 
             switch (value) {
                 case "m":
@@ -41,7 +41,7 @@ public class Parser {
     }
 
     /**
-     * Parses a coordinate value bounded between 0.2 and 0.8 included.
+     * Parse a coordinate value bounded between 0.2 and 0.8 included.
      *
      * <p>
      * <b>Complexity: O(n)</b>, where {@code n} is the length of the value.
@@ -53,10 +53,8 @@ public class Parser {
     public static double parseCoordinate(String value) {
         try {
             double coordinate = Double.parseDouble(value);
-
             if (coordinate < 0.2 || coordinate > 0.8)
                 throw new IllegalArgumentException("Coordinate out of bounds [0.2; 0.8].");
-
             return coordinate;
         } catch (IllegalArgumentException exception) {
             Utils.logException(exception);
@@ -66,10 +64,10 @@ public class Parser {
     }
 
     /**
-     * Parses a strictly positive integer parameter.
+     * Parse a strictly positive integer parameter.
      *
      * <p>
-     * <b>Complexity: O(n)</b>, where {@code n} is the length of the string.
+     * <b>Complexity: O(n)</b>, where {@code n} is the length of the value.
      * </p>
      *
      * @param value       The string value to parse.
@@ -79,10 +77,8 @@ public class Parser {
     public static int parseIntParameter(String value, String description) {
         try {
             int parameter = Integer.parseInt(value);
-
             if (parameter <= 0)
                 throw new IllegalArgumentException("Invalid parameter for `" + description + "` (must be positive).");
-
             return parameter;
         } catch (IllegalArgumentException exception) {
             Utils.logException(exception);
@@ -92,20 +88,18 @@ public class Parser {
     }
 
     /**
-     * Parses a variant value.
+     * Parse a variant value.
      *
      * <p>
-     * <b>Complexity: O(n)</b>, where {@code n} is the length of the string.
+     * <b>Complexity: O(n)</b>, where {@code n} is the length of the value.
      * </p>
      *
      * @param value The variant string to parse.
      * @return The corresponding {@link Variant}.
      */
-    public static Variant parseVariant(String value) {
+    public static Variant parseVariant(String value) throws NullPointerException {
         try {
-            if (value == null)
-                throw new IllegalArgumentException("Variant cannot be null.");
-
+            Objects.requireNonNull("Variant cannot be null.");
             return Variant.valueOf(value);
         } catch (IllegalArgumentException exception) {
             Utils.logException(exception);

@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.util.List;
+import java.util.Objects;
 
 public class Tree2D {
     private final Point bottomRight;
@@ -25,7 +26,7 @@ public class Tree2D {
     }
 
     /**
-     * Builds the Tree2D from the given data.
+     * Build the Tree2D from the given data.
      *
      * <p>
      * <b>Complexity: O(n²)</b>, to be more specific, in <b>θ(n * m)</b>,
@@ -47,7 +48,8 @@ public class Tree2D {
                 break;
 
             Tree2D workingLeaf = this.leafOfMaximumWeight(minCutDimension);
-            if (workingLeaf == null || workingLeaf.width() < minCutDimension || workingLeaf.height() < minCutDimension)
+            if (Objects.isNull(workingLeaf) || workingLeaf.width() < minCutDimension
+                    || workingLeaf.height() < minCutDimension)
                 break;
 
             Axis axis = Utils.determineAxis(v, workingLeaf.width(), workingLeaf.height());
@@ -61,7 +63,7 @@ public class Tree2D {
     }
 
     /**
-     * Builds a child Tree2D leaf based on the split geometry and child type.
+     * Build a child Tree2D leaf based on the split geometry and child type.
      *
      * <p>
      * <b>Complexity: O(1)</b>.
@@ -75,8 +77,7 @@ public class Tree2D {
         Point splitPoint = this.division.getSplitPoint(childType, this.topLeft, this.bottomRight);
         Point nextBottomRight = (childType == ChildType.NE) ? this.bottomRight : splitPoint;
         Point nextTopLeft = (childType == ChildType.NW) ? this.topLeft : splitPoint;
-        Color nextColor = (childColor == null) ? this.color : childColor;
-
+        Color nextColor = (Objects.isNull(childColor)) ? this.color : childColor;
         return new Tree2D(nextTopLeft, nextBottomRight, nextColor);
     }
 
@@ -84,7 +85,7 @@ public class Tree2D {
      * @return {@code true} if the tree has no west child, {@code false} otherwise.
      */
     private boolean isLeaf() {
-        return this.west == null;
+        return Objects.isNull(this.west);
     }
 
     /**
@@ -106,9 +107,9 @@ public class Tree2D {
         Tree2D leftMaximum = this.west.leafOfMaximumWeight(minCutDimension);
         Tree2D rightMaximum = this.east.leafOfMaximumWeight(minCutDimension);
 
-        if (leftMaximum == null)
+        if (Objects.isNull(leftMaximum))
             return rightMaximum;
-        if (rightMaximum == null)
+        if (Objects.isNull(rightMaximum))
             return leftMaximum;
 
         Tree2D tree = Utils.maxWeightValue(leftMaximum, rightMaximum);
@@ -120,7 +121,7 @@ public class Tree2D {
     }
 
     /**
-     * Builds the image representation of the tree.
+     * Build the image representation of the tree.
      *
      * <p>
      * <b>Complexity: O(n)</b>, where {@code n} is the number of pixels.
@@ -135,7 +136,7 @@ public class Tree2D {
     }
 
     /**
-     * Colors an image a rectangle at a time.
+     * Color an image a rectangle at a time.
      *
      * <p>
      * <b>Complexity: O(n)</b>, where {@code n} is the number of pixels.
@@ -161,7 +162,7 @@ public class Tree2D {
     }
 
     /**
-     * Draws a line of separation between rectangles.
+     * Draw a line of separation between rectangles.
      *
      * <p>
      * <b>Complexity: depends on
@@ -202,34 +203,5 @@ public class Tree2D {
 
     public int height() {
         return this.bottomRight.y - this.topLeft.y;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-
-        if (this.west != null)
-            sb.append("( ").append(this.west).append(" )");
-
-        Object content = (division != null) ? this.division : this.formatColor();
-        sb.append("( ").append(content).append(" )");
-
-        if (this.east != null)
-            sb.append("( ").append(this.east).append(" )");
-
-        return sb.toString();
-    }
-
-    /**
-     * Formats the leaf color to its R, G, B representation.
-     *
-     * <p>
-     * <b>Complexity: O(1)</b>.
-     * </p>
-     *
-     * @return The formatted color.
-     */
-    private String formatColor() {
-        return this.color.getRed() + ", " + this.color.getGreen() + ", " + this.color.getBlue();
     }
 }

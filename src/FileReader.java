@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class FileReader {
     private final Path filePath;
@@ -14,7 +15,7 @@ public class FileReader {
     }
 
     /**
-     * Loads the file from the given path. It must be a valid text file.
+     * Load the file from the given path. It must be a valid text file.
      *
      * <p>
      * <b>Complexity: O(n)</b>, where {@code n} is the length of the path.
@@ -25,15 +26,12 @@ public class FileReader {
      */
     private Path tryLoadFile(String path) {
         try {
-            if (path == null)
-                throw new IllegalArgumentException("File path cannot be null.");
+            Objects.requireNonNull(path, "File path cannot be null.");
 
             Path file = Paths.get(path);
-
             String filename = file.getFileName().toString();
             if (!Files.isRegularFile(file) || !filename.endsWith(".txt"))
                 throw new IllegalArgumentException("Path: " + path + " is not a valid text file.");
-
             return file;
         } catch (IllegalArgumentException exception) {
             Utils.logException(exception);
@@ -43,7 +41,7 @@ public class FileReader {
     }
 
     /**
-     * Reads the file content and builds a list of data for each line.
+     * Read the file content and build a list of line data for each line read.
      *
      * <p>
      * <b>Complexity: O(n)</b>, where {@code n} is the number of rows in the file.
@@ -56,11 +54,9 @@ public class FileReader {
 
         try (BufferedReader br = Files.newBufferedReader(this.filePath)) {
             String line;
-
             while ((line = br.readLine()) != null)
                 if (!line.trim().isEmpty())
                     content.add(new LineData(line));
-
             return content;
         } catch (IOException | IllegalArgumentException exception) {
             Utils.logException(exception);
