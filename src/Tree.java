@@ -14,8 +14,7 @@ public interface Tree {
      * <b>Complexity: O(p)</b>, where {@code p} is the image length.
      * </p>
      *
-     * @param lineWidth The separation line width.
      * @return The rendered image.
      */
-    public Image toImage(int lineWidth);
+    public Image toImage();
 }

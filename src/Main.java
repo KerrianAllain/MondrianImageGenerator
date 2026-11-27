@@ -38,18 +38,17 @@ public class Main {
      * {@code p} is the number of pixels rendered.
      * </p>
      *
-     * @param args Strategy number, text filename, and optional line width.
+     * @param args Strategy number and text filename.
      */
     private static void runStrategy0(String[] args) {
-        if (args.length < 2 || args.length > 3) {
+        if (args.length != 2) {
             Utils.logError("Strategy 0 requires 1 argument.");
             System.exit(1);
         }
 
         String filename = args[1];
         Tree tree = Parser.parseTree(new FileReader(filename).readTreeText());
-        // TODO: il faut pouvoir déterminer la lineWidth d'après la relation textuelle.
-        FileModule.saveToPNG(StrategySpecs.path(filename), tree.toImage(1));
+        FileModule.saveToPNG(StrategySpecs.path(filename), tree.toImage());
     }
 
     /**
@@ -73,7 +72,7 @@ public class Main {
         List<LineData> lines = new FileReader(filename).readFile();
 
         Tree2D tree = new Tree2D(specs, lines);
-        saveTree(StrategySpecs.path(filename), "Tree2D", tree, specs.lineWidth);
+        saveTree(StrategySpecs.path(filename), "Tree2D", tree);
     }
 
     /**
@@ -97,7 +96,7 @@ public class Main {
         List<LineData> lines = new FileGenerator(fileLength).generateFile(2);
 
         Tree2D tree = new Tree2D(specs, lines);
-        saveTree(specs.determineFromSpecs(2), "Tree2D", tree, specs.lineWidth);
+        saveTree(specs.determineFromSpecs(2), "Tree2D", tree);
     }
 
     /**
@@ -121,7 +120,7 @@ public class Main {
         List<LineData> lines = new FileGenerator(fileLength).generateFile(4);
 
         RQuadtree tree = new RQuadtree(specs, lines);
-        saveTree(specs.determineFromSpecs(3), "RQuadtree", tree, specs.lineWidth);
+        saveTree(specs.determineFromSpecs(3), "RQuadtree", tree);
     }
 
     /**
@@ -135,10 +134,9 @@ public class Main {
      * @param filename The output name without an extension.
      * @param treeType The tree type used in the text filename.
      * @param tree The tree to save.
-     * @param lineWidth The width of the image separation lines.
      */
-    private static void saveTree(String filename, String treeType, Tree tree, int lineWidth) {
-        FileModule.saveToPNG(filename, tree.toImage(lineWidth));
+    private static void saveTree(String filename, String treeType, Tree tree) {
+        FileModule.saveToPNG(filename, tree.toImage());
         FileModule.saveToTXT(filename, treeType, tree);
     }
 }

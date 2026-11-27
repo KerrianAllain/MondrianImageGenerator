@@ -8,6 +8,7 @@ public class Tree2D implements Tree {
     private final Point bottomRight;
     private final Point topLeft;
     private final Color color;
+    private final int lineWidth;
 
     private Division division;
     private Tree2D east;
@@ -25,6 +26,7 @@ public class Tree2D implements Tree {
         this.bottomRight = new Point(specs.width, specs.height);
         this.topLeft = new Point(0, 0);
         this.color = Color.WHITE;
+        this.lineWidth = specs.lineWidth;
         this.leafHeap = new BinaryHeap<>(this);
 
         this.build(specs.nbLeavesToDivide, specs.minCutDimension, specs.variant, linesData);
@@ -39,10 +41,11 @@ public class Tree2D implements Tree {
         this(parse(representation));
     }
 
-    private Tree2D(Point topLeft, Point bottomRight, Color color) {
+    private Tree2D(Point topLeft, Point bottomRight, Color color, int lineWidth) {
         this.bottomRight = bottomRight;
         this.topLeft = topLeft;
         this.color = color;
+        this.lineWidth = lineWidth;
     }
 
     /**
@@ -103,7 +106,7 @@ public class Tree2D implements Tree {
         Point nextBottomRight = (childType == ChildType.NE) ? this.bottomRight : splitPoint;
         Point nextTopLeft = (childType == ChildType.NW) ? this.topLeft : splitPoint;
         Color nextColor = (Objects.isNull(childColor)) ? this.color : childColor;
-        return new Tree2D(nextTopLeft, nextBottomRight, nextColor);
+        return new Tree2D(nextTopLeft, nextBottomRight, nextColor, this.lineWidth);
     }
 
     /**
@@ -125,9 +128,9 @@ public class Tree2D implements Tree {
      * @return The resulting image.
      */
     @Override
-    public Image toImage(int lineWidth) {
+    public Image toImage() {
         Image image = new Image(this.width(), this.height());
-        return this.colorImage(image, lineWidth);
+        return this.colorImage(image, this.lineWidth);
     }
 
     /**
@@ -212,6 +215,7 @@ public class Tree2D implements Tree {
         this.bottomRight = tree.bottomRight;
         this.topLeft = tree.topLeft;
         this.color = tree.color;
+        this.lineWidth = tree.lineWidth;
 
         this.division = tree.division;
         this.east = tree.east;
@@ -224,9 +228,9 @@ public class Tree2D implements Tree {
         return TreeText.parse(representation, "T2D", Tree2D::parseNode);
     }
 
-    private static Tree2D parseNode(TreeText.Cursor cursor, Point topLeft, Point bottomRight) {
+    private static Tree2D parseNode(TreeText.Cursor cursor, Point topLeft, Point bottomRight, int lineWidth) {
         if (cursor.startsWith("L(")) {
-            return new Tree2D(topLeft, bottomRight, cursor.readColor());
+            return new Tree2D(topLeft, bottomRight, cursor.readColor(), lineWidth);
         }
 
         cursor.expect("D(");
@@ -246,21 +250,21 @@ public class Tree2D implements Tree {
             throw new IllegalArgumentException("Division must be inside the node boundaries.");
         }
 
-        Tree2D tree = new Tree2D(topLeft, bottomRight, Color.WHITE);
+        Tree2D tree = new Tree2D(topLeft, bottomRight, Color.WHITE, lineWidth);
         tree.division = new Division(axis, value);
         Point westBottomRight = axis.withValue(bottomRight, value);
         Point eastTopLeft = axis.withValue(topLeft, value);
         cursor.expect(",");
-        tree.west = parseNode(cursor, topLeft, westBottomRight);
+        tree.west = parseNode(cursor, topLeft, westBottomRight, lineWidth);
         cursor.expect(",");
-        tree.east = parseNode(cursor, eastTopLeft, bottomRight);
+        tree.east = parseNode(cursor, eastTopLeft, bottomRight, lineWidth);
         cursor.expect(")");
         return tree;
     }
 
     @Override
     public String toString() {
-        return TreeText.write("T2D", this.width(), this.height(), this::appendNode);
+        return TreeText.write("T2D", this.width(), this.height(), this.lineWidth, this::appendNode);
     }
 
     private void appendNode(StringBuilder sb) {

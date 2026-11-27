@@ -8,6 +8,7 @@ public class RQuadtree implements Tree {
     private final Point bottomRight;
     private final Point topLeft;
     private final Color color;
+    private final int lineWidth;
 
     private DoubleDivision division;
     private RQuadtree nw;
@@ -27,6 +28,7 @@ public class RQuadtree implements Tree {
         this.bottomRight = new Point(specs.width, specs.height);
         this.topLeft = new Point(0, 0);
         this.color = Color.WHITE;
+        this.lineWidth = specs.lineWidth;
         this.leafHeap = new BinaryHeap<>(this);
 
         this.build(specs.nbLeavesToDivide, specs.minCutDimension, linesData);
@@ -41,10 +43,11 @@ public class RQuadtree implements Tree {
         this(parse(representation));
     }
 
-    private RQuadtree(Point topLeft, Point bottomRight, Color color) {
+    private RQuadtree(Point topLeft, Point bottomRight, Color color, int lineWidth) {
         this.bottomRight = bottomRight;
         this.topLeft = topLeft;
         this.color = color;
+        this.lineWidth = lineWidth;
     }
 
     /**
@@ -106,19 +109,20 @@ public class RQuadtree implements Tree {
         Color nextColor = (Objects.isNull(childColor)) ? this.color : childColor;
         switch (childType) {
             case NW:
-                return new RQuadtree(this.topLeft, new Point(this.division.xValue, this.division.yValue), nextColor);
+                return new RQuadtree(this.topLeft, new Point(this.division.xValue, this.division.yValue), nextColor,
+                        this.lineWidth);
 
             case NE:
                 return new RQuadtree(new Point(this.division.xValue, this.topLeft.y),
-                        new Point(this.bottomRight.x, this.division.yValue), nextColor);
+                        new Point(this.bottomRight.x, this.division.yValue), nextColor, this.lineWidth);
 
             case SE:
                 return new RQuadtree(new Point(this.division.xValue, this.division.yValue), this.bottomRight,
-                        nextColor);
+                        nextColor, this.lineWidth);
 
             case SW:
                 return new RQuadtree(new Point(this.topLeft.x, this.division.yValue),
-                        new Point(this.division.xValue, this.bottomRight.y), nextColor);
+                        new Point(this.division.xValue, this.bottomRight.y), nextColor, this.lineWidth);
             default:
                 throw new AssertionError();
         }
@@ -142,9 +146,9 @@ public class RQuadtree implements Tree {
      * @return The resulting image.
      */
     @Override
-    public Image toImage(int lineWidth) {
+    public Image toImage() {
         Image image = new Image(this.width(), this.height());
-        return this.colorImage(image, lineWidth);
+        return this.colorImage(image, this.lineWidth);
     }
 
     /**
@@ -220,6 +224,7 @@ public class RQuadtree implements Tree {
         this.bottomRight = tree.bottomRight;
         this.topLeft = tree.topLeft;
         this.color = tree.color;
+        this.lineWidth = tree.lineWidth;
 
         this.division = tree.division;
         this.nw = tree.nw;
@@ -234,9 +239,9 @@ public class RQuadtree implements Tree {
         return TreeText.parse(representation, "RQT", RQuadtree::parseNode);
     }
 
-    private static RQuadtree parseNode(TreeText.Cursor cursor, Point topLeft, Point bottomRight) {
+    private static RQuadtree parseNode(TreeText.Cursor cursor, Point topLeft, Point bottomRight, int lineWidth) {
         if (cursor.startsWith("L(")) {
-            return new RQuadtree(topLeft, bottomRight, cursor.readColor());
+            return new RQuadtree(topLeft, bottomRight, cursor.readColor(), lineWidth);
         }
 
         cursor.expect("D(");
@@ -247,25 +252,25 @@ public class RQuadtree implements Tree {
             throw new IllegalArgumentException("Division must be inside the node boundaries.");
         }
 
-        RQuadtree tree = new RQuadtree(topLeft, bottomRight, Color.WHITE);
+        RQuadtree tree = new RQuadtree(topLeft, bottomRight, Color.WHITE, lineWidth);
         tree.division = new DoubleDivision(xValue, yValue);
         Point split = new Point(xValue, yValue);
 
         cursor.expect(",");
-        tree.nw = parseNode(cursor, topLeft, split);
+        tree.nw = parseNode(cursor, topLeft, split, lineWidth);
         cursor.expect(",");
-        tree.ne = parseNode(cursor, new Point(xValue, topLeft.y), new Point(bottomRight.x, yValue));
+        tree.ne = parseNode(cursor, new Point(xValue, topLeft.y), new Point(bottomRight.x, yValue), lineWidth);
         cursor.expect(",");
-        tree.se = parseNode(cursor, split, bottomRight);
+        tree.se = parseNode(cursor, split, bottomRight, lineWidth);
         cursor.expect(",");
-        tree.sw = parseNode(cursor, new Point(topLeft.x, yValue), new Point(xValue, bottomRight.y));
+        tree.sw = parseNode(cursor, new Point(topLeft.x, yValue), new Point(xValue, bottomRight.y), lineWidth);
         cursor.expect(")");
         return tree;
     }
 
     @Override
     public String toString() {
-        return TreeText.write("RQT", this.width(), this.height(), this::appendNode);
+        return TreeText.write("RQT", this.width(), this.height(), this.lineWidth, this::appendNode);
     }
 
     private void appendNode(StringBuilder sb) {

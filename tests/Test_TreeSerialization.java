@@ -5,7 +5,7 @@ import java.util.List;
 public class Test_TreeSerialization {
     private static StrategySpecs specs(int strategy) {
         return new StrategySpecs(new String[] {
-                String.valueOf(strategy), "unused", "100", "80", "2", "5", "1", "A"
+                String.valueOf(strategy), "unused", "100", "80", "2", "5", "7", "A"
         });
     }
 
@@ -22,9 +22,11 @@ public class Test_TreeSerialization {
         assert original.toString().equals(restored.toString());
         assert original.width() == restored.width();
         assert original.height() == restored.height();
+        assert original.toString().startsWith("T2D(100,80,7,");
 
-        Tree2D leaf = new Tree2D("T2D(20,30,L(12,34,56))");
-        assert leaf.toString().equals("T2D(20,30,L(12,34,56))");
+        Tree2D leaf = new Tree2D("T2D(20,30,3,L(12,34,56))");
+        assert leaf.toString().equals("T2D(20,30,3,L(12,34,56))");
+        assert new Tree2D("T2D(20,30,L(12,34,56))").toString().equals("T2D(20,30,1,L(12,34,56))");
     }
 
     private static void testRQuadtreeRoundTrip() {
@@ -34,11 +36,13 @@ public class Test_TreeSerialization {
         assert original.toString().equals(restored.toString());
         assert original.width() == restored.width();
         assert original.height() == restored.height();
+        assert original.toString().startsWith("RQT(100,80,7,");
         assert original.toString().contains("0,255,0");
         assert original.toString().contains("255,255,0");
 
-        RQuadtree leaf = new RQuadtree("RQT(20,30,L(12,34,56))");
-        assert leaf.toString().equals("RQT(20,30,L(12,34,56))");
+        RQuadtree leaf = new RQuadtree("RQT(20,30,3,L(12,34,56))");
+        assert leaf.toString().equals("RQT(20,30,3,L(12,34,56))");
+        assert new RQuadtree("RQT(20,30,L(12,34,56))").toString().equals("RQT(20,30,1,L(12,34,56))");
     }
 
     private static void testInvalidRepresentation() {

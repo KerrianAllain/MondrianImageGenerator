@@ -11,7 +11,7 @@ public final class TreeText {
     @FunctionalInterface
     interface NodeParser<T> {
 
-        T parse(Cursor cursor, Point topLeft, Point bottomRight);
+        T parse(Cursor cursor, Point topLeft, Point bottomRight, int lineWidth);
     }
 
     static <T> T parse(String representation, String prefix, NodeParser<T> parser) {
@@ -24,15 +24,22 @@ public final class TreeText {
         cursor.expect(",");
 
         requirePositiveDimensions(width, height);
-        T tree = parser.parse(cursor, new Point(0, 0), new Point(width, height));
+        int lineWidth = 1;
+        if (!cursor.startsWith("L(") && !cursor.startsWith("D(")) {
+            lineWidth = cursor.readInt();
+            cursor.expect(",");
+        }
+        requireNonNegativeLineWidth(lineWidth);
+        T tree = parser.parse(cursor, new Point(0, 0), new Point(width, height), lineWidth);
 
         cursor.expect(")");
         cursor.finish();
         return tree;
     }
 
-    static String write(String prefix, int width, int height, Consumer<StringBuilder> nodeWriter) {
+    static String write(String prefix, int width, int height, int lineWidth, Consumer<StringBuilder> nodeWriter) {
         requirePositiveDimensions(width, height);
+        requireNonNegativeLineWidth(lineWidth);
         Objects.requireNonNull(nodeWriter, "Node writer cannot be null.");
 
         StringBuilder builder = new StringBuilder()
@@ -43,6 +50,7 @@ public final class TreeText {
                 .append(height)
                 .append(",");
 
+        builder.append(lineWidth).append(",");
         nodeWriter.accept(builder);
         return builder.append(")").toString();
     }
@@ -63,6 +71,12 @@ public final class TreeText {
     private static void requirePositiveDimensions(int width, int height) {
         if (width <= 0 || height <= 0) {
             throw new IllegalArgumentException("Tree dimensions must be positive.");
+        }
+    }
+
+    private static void requireNonNegativeLineWidth(int lineWidth) {
+        if (lineWidth < 0) {
+            throw new IllegalArgumentException("Line width must be non-negative.");
         }
     }
 
