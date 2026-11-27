@@ -1,12 +1,21 @@
-# Générateur de peintures abstraites
+# Art Abstrait et Arbres (ASD3)
 
-Le projet génère des images inspirées de Mondrian à partir d'arbres de découpe.
-Le détail des méthodes et des exemples de résultats est présenté dans le
-[rapport](rapport.md).
+**Auteurs:** Kerrian et Ethann ALLAIN
 
-## Compilation et exécution
+---
 
-Depuis la racine du dépôt :
+## Contenu du dépôt
+
+- `src/` : sources Java du projet.
+- `tests/*.java` : tests utilitaires du projet.
+- `tests/inputs/` : fichiers texte d'entrée fournies.
+- `tests/expected/` : fichiers images de sortie attendues.
+
+## Instructions d'utilisation du projet
+
+Pour utiliser le projet, il faut se situer dans le répertoire **parent** du projet.
+
+La compilation s'effectue à l'aide de la commande suivante :
 
 ``` sh
 javac -source 1.8 -target 1.8 -d AllainAllain/bin AllainAllain/src/*.java
@@ -24,50 +33,41 @@ java -classpath AllainAllain/bin Main 1 [fichier.txt] [largeur] [hauteur] [nbFeu
 
 L'exécution de la première stratégie **personnalisée** s'effectue de la manière suivante :
 
-```sh
-java -cp bin Main 1 tests/inputs/exemple1-200-50-24-9-3-A.txt 200 50 24 9 3 A
+``` sh
+java -classpath AllainAllain/bin Main 2 ([lignesDansLeFichier] [largeur] [hauteur] [nbFeuillesADiviser] [minDimensionCoupe] [largeurLigne] [variante])
 ```
 
-Arguments : `1 fichier largeur hauteur nbFeuilles minDimension largeurLigne variante`.
+Cette stratégie reprend celle proposée, mais cette fois-ci avec des valeurs aléatoires.
+Aucun argument n'est nécessaire, cela repose alors intégralement sur l'aléatoire.
 
-### Méthode 2 — génération aléatoire avec arbre binaire
+### Stratégie personnalisée 2
 
-Les paramètres peuvent être générés automatiquement :
-
-```sh
-java -cp bin Main 2
+L'exécution de la seconde stratégie **personnalisée** s'effectue de la manière suivante :
+``` bash
+java -classpath AllainAllain/bin Main 3 ([lignesDansLeFichier] [largeur] [hauteur] [nbFeuillesADiviser] [minDimensionCoupe] [largeurLigne] [variante])
 ```
 
-Ou précisés dans cet ordre : `2 longueur largeur hauteur nbFeuilles minDimension largeurLigne variante`.
+Cette stratégie utilise un RQuadtree pour modéliser les divisions et la génération d'image.
+Même principe que la stratégie personnalisée 1, aucun argument n'est nécessaire.
 
-### Méthode 3 — génération aléatoire avec RQuadtree
+### Stratégie 0 (cf Détails d'implémentation)
 
-```sh
-java -cp bin Main 3
+L'exécution de cette stratégie s'effectue de la manière suivante :
+``` bash
+java -classpath AllainAllain/bin Main 0 [fichierInput]
 ```
 
-Cette méthode accepte les mêmes paramètres optionnels que la méthode 2.
+## Détails d'implémentations
 
-## Représentation textuelle réversible
+La décision des feuilles à utiliser pour la découpe s'effectue à l'aide d'un **tas binaire** (`binary heap`), afin de garantir des opérations d'insertion et de suppression en **`O(log(n))`**.
 
-`toString()` produit une représentation complète incluant les dimensions, les
-divisions et les couleurs RGB des feuilles. La chaîne peut être passée telle
-quelle au constructeur correspondant :
+L'implémentation d'un RQuadtree s'est vue justifiée dans l'idée de **densifier le nombre de découpes** à chaque étape, et afin de **manipuler une structure de données** non encore travaillée.
 
-```java
-Tree2D restoredBinaryTree = new Tree2D(binaryTree.toString());
-RQuadtree restoredQuadtree = new RQuadtree(quadtree.toString());
-```
+Tout fichier ou paramètre donné en argument à la fonction Main se voit **vérifié** pour assurer la validité de l'exécution du projet.
 
-Le format distingue les feuilles (`L(r,g,b)`) et les divisions (`D(...)`) ;
-pour le RQuadtree, les quatre sous-arbres sont sérialisés dans l'ordre NW, NE,
-SE, SW. Les constructeurs rejettent les représentations mal formées ou dont
-les divisions sortent des limites.
+Notre projet offre la possibilité de convertir une représentation textuelle d'un arbre précédemment construit en l'arbre correspondant, puis d'en produire son image. On permet ainsi un cycle complet :
 
-## Tests
-
-```sh
-javac -d bin src/*.java tests/*.java
-java -ea -cp bin Test_TreeSerialization
-java -ea -cp bin Test_StrategySpecs
-```
+1. On génère une image à partir de spécifications.
+2. On sauvegarde les fichiers résultants (PNG et TXT).
+3. On génère l'image à partir de la sauvegarde TXT précédente.
+4. On constate que les deux images sont parfaitement similaires.

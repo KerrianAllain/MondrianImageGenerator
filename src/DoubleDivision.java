@@ -1,4 +1,6 @@
+
 public class DoubleDivision {
+
     public final int xValue;
     public final int yValue;
 
@@ -10,15 +12,18 @@ public class DoubleDivision {
      * </p>
      *
      * @param topLeft The top left coordinates.
-     * @param line    The line data to access ratios {@code p} and {@code q}.
-     * @param tree    The target RQuadtree instance.
+     * @param line The line data to access ratios {@code p} and {@code q}.
+     * @param tree The target RQuadtree instance.
      */
     public DoubleDivision(Point topLeft, LineData line, RQuadtree tree) {
         this.yValue = topLeft.y + (int) (tree.height() * line.q);
         this.xValue = topLeft.x + (int) (tree.width() * line.p);
     }
 
-    DoubleDivision(int xValue, int yValue) {
+    /**
+     * Constructor for text to tree representation.
+     */
+    public DoubleDivision(int xValue, int yValue) {
         this.xValue = xValue;
         this.yValue = yValue;
     }

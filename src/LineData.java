@@ -1,6 +1,8 @@
+
 import java.awt.Color;
 
 public class LineData {
+
     public static final String SEPARATOR = " ";
 
     public final int k;
@@ -11,6 +13,11 @@ public class LineData {
     public final Color se;
     public final Color sw;
 
+    /**
+     * Generate a DataLine from a string representation.
+     *
+     * @param line The string representation to parse.
+     */
     public LineData(String line) {
         String[] content = line.split(SEPARATOR);
 
@@ -22,6 +29,9 @@ public class LineData {
         this.se = this.sw = null;
     }
 
+    /**
+     * Generate a DataLine from given arguments.
+     */
     public LineData(int k, double p, double q, Color nw, Color ne, Color se, Color sw) {
         this.k = k;
         this.p = p;

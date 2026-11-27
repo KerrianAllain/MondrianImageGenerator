@@ -1,7 +1,12 @@
+
 import java.awt.Color;
 import java.util.Objects;
 
 public class Parser {
+
+    private Parser() {
+    }
+
     /**
      * Parse a Color value ("m", "r", "b", "n", "w" or "j").
      *
@@ -53,8 +58,9 @@ public class Parser {
     public static double parseCoordinate(String value) {
         try {
             double coordinate = Double.parseDouble(value);
-            if (coordinate < 0.2 || coordinate > 0.8)
+            if (coordinate < 0.2 || coordinate > 0.8) {
                 throw new IllegalArgumentException("Coordinate out of bounds [0.2; 0.8].");
+            }
             return coordinate;
         } catch (IllegalArgumentException exception) {
             Utils.logException(exception);
@@ -70,21 +76,35 @@ public class Parser {
      * <b>Complexity: O(n)</b>, where {@code n} is the length of the value.
      * </p>
      *
-     * @param value       The string value to parse.
+     * @param value The string value to parse.
      * @param description Parameter name for error reporting.
      * @return The parsed integer.
      */
     public static int parseIntParameter(String value, String description) {
         try {
             int parameter = Integer.parseInt(value);
-            if (parameter <= 0)
+            if (parameter < 0) {
                 throw new IllegalArgumentException("Invalid parameter for `" + description + "` (must be positive).");
+            }
             return parameter;
         } catch (IllegalArgumentException exception) {
             Utils.logException(exception);
             System.exit(1);
             return -1;
         }
+    }
+
+    public static Tree parseTree(String representation) {
+        if (representation.startsWith("T2D(")) {
+            return new Tree2D(representation);
+        }
+        if (representation.startsWith("RQT(")) {
+            return new RQuadtree(representation);
+        }
+
+        Utils.logError("The file does not contain a supported tree representation.");
+        System.exit(1);
+        return null;
     }
 
     /**
@@ -97,7 +117,7 @@ public class Parser {
      * @param value The variant string to parse.
      * @return The corresponding {@link Variant}.
      */
-    public static Variant parseVariant(String value) throws NullPointerException {
+    public static Variant parseVariant(String value) {
         try {
             Objects.requireNonNull("Variant cannot be null.");
             return Variant.valueOf(value);

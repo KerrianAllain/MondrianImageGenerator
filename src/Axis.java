@@ -1,3 +1,4 @@
+
 public enum Axis {
     X {
         @Override
@@ -5,7 +6,6 @@ public enum Axis {
             return new Point(v, p.y);
         }
     },
-
     Y {
         @Override
         public Point withValue(Point p, int v) {

@@ -1,16 +1,22 @@
+
 import java.util.Random;
 
 /**
- * All Utils functions are in {@code O(1)} time.
- * As there is only comparisons and calculations.
+ * All Utils functions are in {@code O(1)} time. As there is only comparisons
+ * and calculations.
  */
 public class Utils {
+
+    private Utils() {
+    }
+
     private static final String GREEN = "\033[32m";
     private static final String RESET = "\033[0m";
     private static final String RED = "\033[31m";
 
     /**
-     * Determines the Axis to divide on based on the variant and leaf dimensions.
+     * Determines the Axis to divide on based on the variant and leaf
+     * dimensions.
      *
      * @param v The variant used for the segmentation.
      * @param w The width of the leaf.
@@ -20,11 +26,13 @@ public class Utils {
     public static Axis determineAxis(Variant v, int width, int height) {
         double ratio = (double) width / height;
 
-        if (v == Variant.B)
+        if (v == Variant.B) {
             return (ratio > 1) ? Axis.X : Axis.Y;
+        }
 
-        if (v == Variant.A)
+        if (v == Variant.A) {
             return (ratio >= 0.5) ? Axis.X : Axis.Y;
+        }
 
         throw new IllegalArgumentException("Unsupported variant: " + v + ".");
     }
@@ -36,8 +44,8 @@ public class Utils {
      * @param max The max double value (excluded).
      * @return The generated double value, rounded to 2 decimal places.
      */
-    public static double generateDouble(Random RANDOM, double min, double max) {
-        return min + RANDOM.nextDouble() * (max - min);
+    public static double generateDouble(Random random, double min, double max) {
+        return min + random.nextDouble() * (max - min);
     }
 
     /**
@@ -47,8 +55,8 @@ public class Utils {
      * @param max The max int value (included).
      * @return The generated int value.
      */
-    public static int generateInt(Random RANDOM, int min, int max) {
-        return RANDOM.nextInt(max - min + 1) + min;
+    public static int generateInt(Random random, int min, int max) {
+        return random.nextInt(max - min + 1) + min;
     }
 
     /**
@@ -63,8 +71,8 @@ public class Utils {
 
     /**
      * Determine the point with the highest left coordinate following the
-     * lexicographic order.
-     * Reminder: (a, b) < (a', b') iff either a < a' or a = 'a and b < b'.
+     * lexicographic order. Reminder: (a, b) < (a', b') iff either a < a' or a =
+     * 'a and b < b'.
      *
      * @param p1 The first Point.
      * @param p2 The second Point.
@@ -72,8 +80,9 @@ public class Utils {
      */
     public static int highestLeftCoordinate(Point p1, Point p2) {
         int xCompare = Integer.compare(p1.x, p2.x);
-        if (xCompare != 0)
+        if (xCompare != 0) {
             return (xCompare < 0) ? -1 : 1;
+        }
 
         int yCompare = Integer.compare(p1.y, p2.y);
         return yCompare < 0 ? -1 : 1;
@@ -82,17 +91,18 @@ public class Utils {
     /**
      * Determine the T having the maximum weight value between two T.
      *
-     * @param left  The left T.
+     * @param left The left T.
      * @param right The right T.
      * @return The tree with the highest weight or {@code null} if their weight
-     *         values are equals.
+     * values are equals.
      */
     public static <T extends Tree> T maxWeightValue(T left, T right) {
         double rightWeight = getWeight(right.width(), right.height());
         double leftWeight = getWeight(left.width(), left.height());
 
-        if (Double.compare(leftWeight, rightWeight) == 0)
+        if (Double.compare(leftWeight, rightWeight) == 0) {
             return null;
+        }
 
         return (leftWeight > rightWeight) ? left : right;
     }
@@ -100,7 +110,7 @@ public class Utils {
     /**
      * Determines the T having the maximum weight value between two Tree2D.
      *
-     * @param left  The left T.
+     * @param left The left T.
      * @param right The right T.
      * @return -1 if left has a smaller weight than right
      */
@@ -112,12 +122,13 @@ public class Utils {
     }
 
     /**
-     * Determines the RQuadtree having the maximum weight value between two RQuadtree.
+     * Determines the RQuadtree having the maximum weight value between two
+     * RQuadtree.
      *
      * @param tree The tree to compute the weight.
      * @return The tree's weight.
      */
-    public static<T extends Tree> double getWeight(T tree) {
+    public static <T extends Tree> double getWeight(T tree) {
         return getWeight(tree.width(), tree.height());
     }
 
@@ -129,7 +140,7 @@ public class Utils {
      * @return The leaf's weight.
      */
     private static double getWeight(int w, int h) {
-        return (w * h) / Math.pow(w + h, 1.5);
+        return (w * h) / Math.pow((w + h), 1.5);
     }
 
     /**

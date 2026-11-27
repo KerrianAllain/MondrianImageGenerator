@@ -1,4 +1,6 @@
+
 public class HeapNode<T> {
+
     private final Double weight;
     private final T tree;
 

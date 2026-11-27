@@ -1,4 +1,6 @@
+
 public class Division {
+
     public final Axis axis;
     public final int value;
 
@@ -9,10 +11,10 @@ public class Division {
      * <b>Complexity: O(1)</b>.
      * </p>
      *
-     * @param axis    The axis to use for the division.
+     * @param axis The axis to use for the division.
      * @param topLeft The top left coordinates.
-     * @param line    The line data to access ratios {@code p} and {@code q}.
-     * @param tree    The target Tree2D instance.
+     * @param line The line data to access ratios {@code p} and {@code q}.
+     * @param tree The target Tree2D instance.
      */
     public Division(Axis axis, Point topLeft, LineData line, Tree2D tree) {
         int axisY = topLeft.y + (int) (tree.height() * line.q);
@@ -21,7 +23,13 @@ public class Division {
         this.axis = axis;
     }
 
-    Division(Axis axis, int value) {
+    /**
+     * Constructor for text to tree representation.
+     *
+     * @param axis The Division Axis.
+     * @param value The Division value.
+     */
+    public Division(Axis axis, int value) {
         this.axis = axis;
         this.value = value;
     }
@@ -33,18 +41,13 @@ public class Division {
      * <b>Complexity: O(1)</b>.
      * </p>
      *
-     * @param childType   The child type to determine.
-     * @param topLeft     The top left Point.
+     * @param childType The child type to determine.
+     * @param topLeft The top left Point.
      * @param bottomRight The bottom right Point.
      * @return The calculated split Point.
      */
     public Point getSplitPoint(ChildType childType, Point topLeft, Point bottomRight) {
         Point target = (childType == ChildType.NW) ? bottomRight : topLeft;
         return this.axis.withValue(target, this.value);
-    }
-
-    @Override
-    public String toString() {
-        return this.axis + ", " + this.value;
     }
 }

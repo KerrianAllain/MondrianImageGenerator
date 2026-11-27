@@ -1,8 +1,10 @@
+
 import java.awt.Color;
 import java.util.List;
 import java.util.Objects;
 
 public class Tree2D implements Tree {
+
     private final Point bottomRight;
     private final Point topLeft;
     private final Color color;
@@ -13,6 +15,12 @@ public class Tree2D implements Tree {
 
     private BinaryHeap<Tree2D> leafHeap;
 
+    /**
+     * Constructs a tree from specifications.
+     *
+     * @param specs The Strategy specifications.
+     * @param linesData The data to use for the construction.
+     */
     public Tree2D(StrategySpecs specs, List<LineData> linesData) {
         this.bottomRight = new Point(specs.width, specs.height);
         this.topLeft = new Point(0, 0);
@@ -31,94 +39,40 @@ public class Tree2D implements Tree {
         this(parse(representation));
     }
 
-    private Tree2D(Tree2D tree) {
-        this.bottomRight = tree.bottomRight;
-        this.topLeft = tree.topLeft;
-        this.color = tree.color;
-        this.division = tree.division;
-        this.east = tree.east;
-        this.west = tree.west;
-        this.leafHeap = null;
-    }
-
     private Tree2D(Point topLeft, Point bottomRight, Color color) {
         this.bottomRight = bottomRight;
         this.topLeft = topLeft;
         this.color = color;
     }
 
-    private static Tree2D parse(String representation) {
-        TreeText.Cursor cursor = new TreeText.Cursor(representation);
-        cursor.expect("T2D(");
-        int width = cursor.readInt();
-        cursor.expect(",");
-        int height = cursor.readInt();
-        if (width <= 0 || height <= 0)
-            throw new IllegalArgumentException("Tree dimensions must be positive.");
-        cursor.expect(",");
-        Tree2D tree = parseNode(cursor, new Point(0, 0), new Point(width, height));
-        cursor.expect(")");
-        cursor.finish();
-        return tree;
-    }
-
-    private static Tree2D parseNode(TreeText.Cursor cursor, Point topLeft, Point bottomRight) {
-        if (cursor.startsWith("L("))
-            return new Tree2D(topLeft, bottomRight, cursor.readColor());
-
-        cursor.expect("D(");
-        Axis axis;
-        if (cursor.startsWith("X"))
-            axis = Axis.X;
-        else if (cursor.startsWith("Y"))
-            axis = Axis.Y;
-        else
-            throw new IllegalArgumentException("Expected a division axis.");
-        cursor.expect(axis.toString());
-        cursor.expect(",");
-        int value = cursor.readInt();
-        if ((axis == Axis.X && (value <= topLeft.x || value >= bottomRight.x))
-                || (axis == Axis.Y && (value <= topLeft.y || value >= bottomRight.y)))
-            throw new IllegalArgumentException("Division must be inside the node boundaries.");
-
-        Tree2D tree = new Tree2D(topLeft, bottomRight, Color.WHITE);
-        tree.division = new Division(axis, value);
-        Point westBottomRight = axis.withValue(bottomRight, value);
-        Point eastTopLeft = axis.withValue(topLeft, value);
-        cursor.expect(",");
-        tree.west = parseNode(cursor, topLeft, westBottomRight);
-        cursor.expect(",");
-        tree.east = parseNode(cursor, eastTopLeft, bottomRight);
-        cursor.expect(")");
-        return tree;
-    }
-
     /**
      * Build the Tree2D from the given data.
      *
      * <p>
-     * <b>Complexity: O(n²)</b>, to be more specific, in <b>θ(n * m)</b>,
-     * where {@code n} is the number of lines to process,
-     * and {@code m} is the complexity of {@link Tree2D#leafOfMaximumWeight(int)}
-     * (which increases at each iteration of loop because of the insertions).
+     * <b>Complexity: O(n²)</b>, to be more specific, in <b>θ(n * m)</b>, where
+     * {@code n} is the number of lines to process, and {@code m} is the
+     * complexity of {@link Tree2D#leafOfMaximumWeight(int)} (which increases at
+     * each iteration of loop because of the insertions).
      * </p>
      *
      * @param nbLeavesToDivide The maximum number of leaves authorized.
-     * @param minCutDimension  The minimal square cut dimension.
-     * @param v                The variant used to represent the Tree2D.
-     * @param lines            The list of lines from the source file.
+     * @param minCutDimension The minimal square cut dimension.
+     * @param v The variant used to represent the Tree2D.
+     * @param lines The list of lines from the source file.
      */
     private void build(int nbLeavesToDivide, int minCutDimension, Variant v, List<LineData> lines) {
         int divisions = 0;
 
         for (LineData line : lines) {
-            if (divisions == nbLeavesToDivide)
+            if (divisions == nbLeavesToDivide) {
                 break;
+            }
 
             Tree2D workingLeaf = this.leafHeap.pop();
             if (Objects.isNull(workingLeaf) || workingLeaf.width() < minCutDimension
-                    || workingLeaf.height() < minCutDimension)
+                    || workingLeaf.height() < minCutDimension) {
                 break;
+            }
 
             Axis axis = Utils.determineAxis(v, workingLeaf.width(), workingLeaf.height());
             workingLeaf.division = new Division(axis, workingLeaf.topLeft, line, workingLeaf);
@@ -141,7 +95,7 @@ public class Tree2D implements Tree {
      * </p>
      *
      * @param childColor Specified color for the child.
-     * @param childType  Whether this is a LEFT or RIGHT child node.
+     * @param childType Whether this is a LEFT or RIGHT child node.
      * @return A new Tree2D instance representing the split child leaf.
      */
     private Tree2D buildLeaf(Color childColor, ChildType childType) {
@@ -153,42 +107,11 @@ public class Tree2D implements Tree {
     }
 
     /**
-     * @return {@code true} if the tree has no west child, {@code false} otherwise.
+     * @return {@code true} if the tree has no west child, {@code false}
+     * otherwise.
      */
     private boolean isLeaf() {
         return Objects.isNull(this.west);
-    }
-
-    /**
-     * Determines the leaf that has the maximum weight and respects minCutDimension.
-     *
-     * <p>
-     * <b>Complexity: O(n)</b>, where {@code n} is the number of nodes.
-     * </p>
-     *
-     * @param minCutDimension Minimum allowed width and height for a cut.
-     * @return The leaf with the maximum weight, or null if no valid leaf exists.
-     */
-    private Tree2D leafOfMaximumWeight(int minCutDimension) {
-        if (this.isLeaf()) {
-            boolean isValid = this.width() >= minCutDimension && this.height() >= minCutDimension;
-            return isValid ? this : null;
-        }
-
-        Tree2D leftMaximum = this.west.leafOfMaximumWeight(minCutDimension);
-        Tree2D rightMaximum = this.east.leafOfMaximumWeight(minCutDimension);
-
-        if (Objects.isNull(leftMaximum))
-            return rightMaximum;
-        if (Objects.isNull(rightMaximum))
-            return leftMaximum;
-
-        Tree2D tree = Utils.maxWeightValue(leftMaximum, rightMaximum);
-        if (tree != null)
-            return tree;
-
-        int comparison = Utils.highestLeftCoordinate(leftMaximum.topLeft, rightMaximum.topLeft);
-        return (comparison == -1) ? leftMaximum : rightMaximum;
     }
 
     /**
@@ -214,7 +137,7 @@ public class Tree2D implements Tree {
      * <b>Complexity: O(n)</b>, where {@code n} is the number of pixels.
      * </p>
      *
-     * @param image     The image to progressively color.
+     * @param image The image to progressively color.
      * @param lineWidth The line width of separation between rectangles.
      * @return The colored image.
      */
@@ -227,8 +150,9 @@ public class Tree2D implements Tree {
         image = this.west.colorImage(image, lineWidth);
         image = this.east.colorImage(image, lineWidth);
 
-        if (lineWidth > 0)
+        if (lineWidth > 0) {
             this.drawSeparationLine(image, lineWidth);
+        }
 
         return image;
     }
@@ -241,7 +165,7 @@ public class Tree2D implements Tree {
      * {@link Image#setRectangle(int, int, int, int, Color)}</b>.
      * </p>
      *
-     * @param image     The image to add a separation line.
+     * @param image The image to add a separation line.
      * @param lineWidth The width of the separation line.
      */
     private void drawSeparationLine(Image image, int lineWidth) {
@@ -284,20 +208,67 @@ public class Tree2D implements Tree {
         return this.topLeft;
     }
 
+    private Tree2D(Tree2D tree) {
+        this.bottomRight = tree.bottomRight;
+        this.topLeft = tree.topLeft;
+        this.color = tree.color;
+
+        this.division = tree.division;
+        this.east = tree.east;
+        this.west = tree.west;
+
+        this.leafHeap = null;
+    }
+
+    private static Tree2D parse(String representation) {
+        return TreeText.parse(representation, "T2D", Tree2D::parseNode);
+    }
+
+    private static Tree2D parseNode(TreeText.Cursor cursor, Point topLeft, Point bottomRight) {
+        if (cursor.startsWith("L(")) {
+            return new Tree2D(topLeft, bottomRight, cursor.readColor());
+        }
+
+        cursor.expect("D(");
+        Axis axis;
+        if (cursor.startsWith("X")) {
+            axis = Axis.X;
+        } else if (cursor.startsWith("Y")) {
+            axis = Axis.Y;
+        } else {
+            throw new IllegalArgumentException("Expected a division axis.");
+        }
+        cursor.expect(axis.toString());
+        cursor.expect(",");
+        int value = cursor.readInt();
+        if ((axis == Axis.X && (value <= topLeft.x || value >= bottomRight.x))
+                || (axis == Axis.Y && (value <= topLeft.y || value >= bottomRight.y))) {
+            throw new IllegalArgumentException("Division must be inside the node boundaries.");
+        }
+
+        Tree2D tree = new Tree2D(topLeft, bottomRight, Color.WHITE);
+        tree.division = new Division(axis, value);
+        Point westBottomRight = axis.withValue(bottomRight, value);
+        Point eastTopLeft = axis.withValue(topLeft, value);
+        cursor.expect(",");
+        tree.west = parseNode(cursor, topLeft, westBottomRight);
+        cursor.expect(",");
+        tree.east = parseNode(cursor, eastTopLeft, bottomRight);
+        cursor.expect(")");
+        return tree;
+    }
+
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("T2D(")
-                .append(this.width()).append(",").append(this.height()).append(",");
-        this.appendNode(sb);
-        return sb.append(")").toString();
+        return TreeText.write("T2D", this.width(), this.height(), this::appendNode);
     }
 
     private void appendNode(StringBuilder sb) {
         if (this.isLeaf()) {
-            sb.append("L(").append(this.color.getRed()).append(",")
-                    .append(this.color.getGreen()).append(",").append(this.color.getBlue()).append(")");
+            TreeText.appendLeaf(sb, this.color);
             return;
         }
+
         sb.append("D(").append(this.division.axis).append(",").append(this.division.value).append(",");
         this.west.appendNode(sb);
         sb.append(",");

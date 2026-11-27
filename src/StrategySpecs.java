@@ -1,8 +1,10 @@
+
 import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Random;
 
 public class StrategySpecs {
+
     private static final String DEFAULT_FILENAME = "file";
     private static final Random RANDOM = new Random();
 
@@ -40,7 +42,8 @@ public class StrategySpecs {
     }
 
     /**
-     * Determine the filename from the given strategy and current specifications.
+     * Determine the filename from the given strategy and current
+     * specifications.
      *
      * @param strategy The strategy number used.
      * @return The formatted filename.
@@ -68,8 +71,8 @@ public class StrategySpecs {
     }
 
     /**
-     * Determine the filename from the given path.
-     * Uses Regex expression to delete the first .txt extension found.
+     * Determine the filename from the given path. Uses Regex expression to
+     * delete the first .txt extension found.
      *
      * @param filename The path to the file content.
      * @return The cleaned filename.

@@ -1,3 +1,4 @@
+
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,6 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 public class FileGenerator {
+
     // All available colors from the Color module can be used.
     private static final List<Color> COLORS = Collections.unmodifiableList(
             Arrays.asList(
@@ -36,23 +38,32 @@ public class FileGenerator {
     /**
      * Generate the content of an input file.
      *
-     * @param dimension The dimension of the LineData (either 2 or 4).
-     *                  2 means we want to build a Tree2D, 4 means a RQuadtree.
+     * <p>
+     * <b>Complexity: O(n)</b>, n the dimension of the file.
+     * </p>
+     *
+     * @param dimension The dimension of the LineData (either 2 or 4). 2 means
+     * we want to build a Tree2D, 4 means a RQuadtree.
      * @return A list of LineData to build an Image from.
      */
     public List<LineData> generateFile(int dimension) {
-        List<LineData> content = new ArrayList<>();
-        for (int k = 1; k <= this.fileLength; k++)
+        List<LineData> content = new ArrayList<>(dimension);
+        for (int k = 1; k <= this.fileLength; k++) {
             content.add(this.generateLineData(k, dimension));
+        }
         return content;
     }
 
     /**
      * Generate a LineData content.
      *
-     * @param k         The current line index being generated.
-     * @param dimension The dimension of the LineData (either 2 or 4).
-     *                  2 means we want to build a Tree2D, 4 means a RQuadtree.
+     * <p>
+     * <b>Complexity: O(1)</b>.
+     * </p>
+     *
+     * @param k The current line index being generated.
+     * @param dimension The dimension of the LineData (either 2 or 4). 2 means
+     * we want to build a Tree2D, 4 means a RQuadtree.
      * @return The generated LineData from scratch.
      */
     private LineData generateLineData(int k, int dimension) {
@@ -65,7 +76,11 @@ public class FileGenerator {
     }
 
     /**
-     * Pick a Color from the available ones (same, red, blue, black, white, yellow).
+     * Pick a Color from the available ones.
+     *
+     * <p>
+     * <b>Complexity: O(1)</b>.
+     * </p>
      *
      * @return The picked color.
      */
