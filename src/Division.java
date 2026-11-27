@@ -21,6 +21,11 @@ public class Division {
         this.axis = axis;
     }
 
+    Division(Axis axis, int value) {
+        this.axis = axis;
+        this.value = value;
+    }
+
     /**
      * Determine the Point to use for the division.
      *
@@ -36,5 +41,10 @@ public class Division {
     public Point getSplitPoint(ChildType childType, Point topLeft, Point bottomRight) {
         Point target = (childType == ChildType.NW) ? bottomRight : topLeft;
         return this.axis.withValue(target, this.value);
+    }
+
+    @Override
+    public String toString() {
+        return this.axis + ", " + this.value;
     }
 }

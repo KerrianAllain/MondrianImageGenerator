@@ -64,7 +64,7 @@ public class StrategySpecs {
      * @return The parsed length.
      */
     public int fileLength(String value) {
-        return Objects.requireNonNullElse(this.nbLeavesToDivide, Parser.parseIntParameter(value, "file length"));
+        return Objects.isNull(value) ? this.nbLeavesToDivide : Parser.parseIntParameter(value, "file length");
     }
 
     /**

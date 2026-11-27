@@ -24,10 +24,73 @@ public class RQuadtree implements Tree {
         this.build(specs.nbLeavesToDivide, specs.minCutDimension, linesData);
     }
 
+    /**
+     * Reconstructs a tree from its {@link #toString()} representation.
+     *
+     * @param representation The serialized tree.
+     */
+    public RQuadtree(String representation) {
+        this(parse(representation));
+    }
+
+    private RQuadtree(RQuadtree tree) {
+        this.bottomRight = tree.bottomRight;
+        this.topLeft = tree.topLeft;
+        this.color = tree.color;
+        this.division = tree.division;
+        this.NW = tree.NW;
+        this.NE = tree.NE;
+        this.SE = tree.SE;
+        this.SW = tree.SW;
+        this.leafHeap = null;
+    }
+
     private RQuadtree(Point topLeft, Point bottomRight, Color color) {
         this.bottomRight = bottomRight;
         this.topLeft = topLeft;
         this.color = color;
+    }
+
+    private static RQuadtree parse(String representation) {
+        TreeText.Cursor cursor = new TreeText.Cursor(representation);
+        cursor.expect("RQT(");
+        int width = cursor.readInt();
+        cursor.expect(",");
+        int height = cursor.readInt();
+        if (width <= 0 || height <= 0)
+            throw new IllegalArgumentException("Tree dimensions must be positive.");
+        cursor.expect(",");
+        RQuadtree tree = parseNode(cursor, new Point(0, 0), new Point(width, height));
+        cursor.expect(")");
+        cursor.finish();
+        return tree;
+    }
+
+    private static RQuadtree parseNode(TreeText.Cursor cursor, Point topLeft, Point bottomRight) {
+        if (cursor.startsWith("L("))
+            return new RQuadtree(topLeft, bottomRight, cursor.readColor());
+
+        cursor.expect("D(");
+        int xValue = cursor.readInt();
+        cursor.expect(",");
+        int yValue = cursor.readInt();
+        if (xValue <= topLeft.x || xValue >= bottomRight.x
+                || yValue <= topLeft.y || yValue >= bottomRight.y)
+            throw new IllegalArgumentException("Division must be inside the node boundaries.");
+
+        RQuadtree tree = new RQuadtree(topLeft, bottomRight, Color.WHITE);
+        tree.division = new DoubleDivision(xValue, yValue);
+        Point split = new Point(xValue, yValue);
+        cursor.expect(",");
+        tree.NW = parseNode(cursor, topLeft, split);
+        cursor.expect(",");
+        tree.NE = parseNode(cursor, new Point(xValue, topLeft.y), new Point(bottomRight.x, yValue));
+        cursor.expect(",");
+        tree.SE = parseNode(cursor, split, bottomRight);
+        cursor.expect(",");
+        tree.SW = parseNode(cursor, new Point(topLeft.x, yValue), new Point(xValue, bottomRight.y));
+        cursor.expect(")");
+        return tree;
     }
 
     /**
@@ -63,10 +126,10 @@ public class RQuadtree implements Tree {
             workingLeaf.SE = workingLeaf.buildLeaf(line.se, ChildType.SE);
             workingLeaf.SW = workingLeaf.buildLeaf(line.sw, ChildType.SW);
 
-            this.leafHeap.push(NW);
-            this.leafHeap.push(NE);
-            this.leafHeap.push(SE);
-            this.leafHeap.push(SW);
+            this.leafHeap.push(workingLeaf.NW);
+            this.leafHeap.push(workingLeaf.NE);
+            this.leafHeap.push(workingLeaf.SE);
+            this.leafHeap.push(workingLeaf.SW);
 
             divisions++;
         }
@@ -122,6 +185,7 @@ public class RQuadtree implements Tree {
      * @param lineWidth The line width of separation between rectangles.
      * @return The resulting image.
      */
+    @Override
     public Image toImage(int lineWidth) {
         Image image = new Image(this.width(), this.height());
         return this.colorImage(image, lineWidth);
@@ -193,5 +257,30 @@ public class RQuadtree implements Tree {
     @Override
     public Point topLeftPoint() {
         return this.topLeft;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("RQT(")
+                .append(this.width()).append(",").append(this.height()).append(",");
+        this.appendNode(sb);
+        return sb.append(")").toString();
+    }
+
+    private void appendNode(StringBuilder sb) {
+        if (this.isLeaf()) {
+            sb.append("L(").append(this.color.getRed()).append(",")
+                    .append(this.color.getGreen()).append(",").append(this.color.getBlue()).append(")");
+            return;
+        }
+        sb.append("D(").append(this.division.xValue).append(",").append(this.division.yValue).append(",");
+        this.NW.appendNode(sb);
+        sb.append(",");
+        this.NE.appendNode(sb);
+        sb.append(",");
+        this.SE.appendNode(sb);
+        sb.append(",");
+        this.SW.appendNode(sb);
+        sb.append(")");
     }
 }

@@ -17,4 +17,9 @@ public class DoubleDivision {
         this.yValue = topLeft.y + (int) (tree.height() * line.q);
         this.xValue = topLeft.x + (int) (tree.width() * line.p);
     }
+
+    DoubleDivision(int xValue, int yValue) {
+        this.xValue = xValue;
+        this.yValue = yValue;
+    }
 }

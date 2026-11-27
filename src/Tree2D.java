@@ -22,10 +22,75 @@ public class Tree2D implements Tree {
         this.build(specs.nbLeavesToDivide, specs.minCutDimension, specs.variant, linesData);
     }
 
+    /**
+     * Reconstructs a tree from its {@link #toString()} representation.
+     *
+     * @param representation The serialized tree.
+     */
+    public Tree2D(String representation) {
+        this(parse(representation));
+    }
+
+    private Tree2D(Tree2D tree) {
+        this.bottomRight = tree.bottomRight;
+        this.topLeft = tree.topLeft;
+        this.color = tree.color;
+        this.division = tree.division;
+        this.east = tree.east;
+        this.west = tree.west;
+        this.leafHeap = null;
+    }
+
     private Tree2D(Point topLeft, Point bottomRight, Color color) {
         this.bottomRight = bottomRight;
         this.topLeft = topLeft;
         this.color = color;
+    }
+
+    private static Tree2D parse(String representation) {
+        TreeText.Cursor cursor = new TreeText.Cursor(representation);
+        cursor.expect("T2D(");
+        int width = cursor.readInt();
+        cursor.expect(",");
+        int height = cursor.readInt();
+        if (width <= 0 || height <= 0)
+            throw new IllegalArgumentException("Tree dimensions must be positive.");
+        cursor.expect(",");
+        Tree2D tree = parseNode(cursor, new Point(0, 0), new Point(width, height));
+        cursor.expect(")");
+        cursor.finish();
+        return tree;
+    }
+
+    private static Tree2D parseNode(TreeText.Cursor cursor, Point topLeft, Point bottomRight) {
+        if (cursor.startsWith("L("))
+            return new Tree2D(topLeft, bottomRight, cursor.readColor());
+
+        cursor.expect("D(");
+        Axis axis;
+        if (cursor.startsWith("X"))
+            axis = Axis.X;
+        else if (cursor.startsWith("Y"))
+            axis = Axis.Y;
+        else
+            throw new IllegalArgumentException("Expected a division axis.");
+        cursor.expect(axis.toString());
+        cursor.expect(",");
+        int value = cursor.readInt();
+        if ((axis == Axis.X && (value <= topLeft.x || value >= bottomRight.x))
+                || (axis == Axis.Y && (value <= topLeft.y || value >= bottomRight.y)))
+            throw new IllegalArgumentException("Division must be inside the node boundaries.");
+
+        Tree2D tree = new Tree2D(topLeft, bottomRight, Color.WHITE);
+        tree.division = new Division(axis, value);
+        Point westBottomRight = axis.withValue(bottomRight, value);
+        Point eastTopLeft = axis.withValue(topLeft, value);
+        cursor.expect(",");
+        tree.west = parseNode(cursor, topLeft, westBottomRight);
+        cursor.expect(",");
+        tree.east = parseNode(cursor, eastTopLeft, bottomRight);
+        cursor.expect(")");
+        return tree;
     }
 
     /**
@@ -136,6 +201,7 @@ public class Tree2D implements Tree {
      * @param lineWidth The line width of separation between rectangles.
      * @return The resulting image.
      */
+    @Override
     public Image toImage(int lineWidth) {
         Image image = new Image(this.width(), this.height());
         return this.colorImage(image, lineWidth);
@@ -216,5 +282,26 @@ public class Tree2D implements Tree {
     @Override
     public Point topLeftPoint() {
         return this.topLeft;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("T2D(")
+                .append(this.width()).append(",").append(this.height()).append(",");
+        this.appendNode(sb);
+        return sb.append(")").toString();
+    }
+
+    private void appendNode(StringBuilder sb) {
+        if (this.isLeaf()) {
+            sb.append("L(").append(this.color.getRed()).append(",")
+                    .append(this.color.getGreen()).append(",").append(this.color.getBlue()).append(")");
+            return;
+        }
+        sb.append("D(").append(this.division.axis).append(",").append(this.division.value).append(",");
+        this.west.appendNode(sb);
+        sb.append(",");
+        this.east.appendNode(sb);
+        sb.append(")");
     }
 }
